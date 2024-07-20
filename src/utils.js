@@ -18,7 +18,10 @@ function logSuccess(from, hash) {
     `[${moment().format('HH:mm:ss')}] Claim to ${from} was successful!`.green
   );
   console.log(
-    `[${moment().format('HH:mm:ss')}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${hash}`.green
+    `[${moment().format(
+      'HH:mm:ss'
+    )}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${hash}`
+      .green
   );
   console.log('');
 }
@@ -29,24 +32,31 @@ function logError(error) {
       console.log(
         `[${moment().format(
           'HH:mm:ss'
-        )}] You can only claim from the faucet every 10 minutes. Please try again later.`.red
+        )}] You can only claim from the faucet every 1 hour. Please try again later.`
+          .red
       );
     } else if (error.shortMessage.includes('could not coalesce error')) {
       console.log(
-        `[${moment().format('HH:mm:ss')}] RPC is down. Please try again later.`.red
+        `[${moment().format('HH:mm:ss')}] RPC is down. Please try again later.`
+          .red
       );
     } else {
       console.log(
-        `[${moment().format('HH:mm:ss')}] Transaction error: ${error.shortMessage}`.red
+        `[${moment().format('HH:mm:ss')}] Transaction error: ${
+          error.shortMessage
+        }`.red
       );
     }
   } else if (error.error && error.error.message) {
     console.log(
-      `[${moment().format('HH:mm:ss')}] Transaction error: ${error.error.message}`.red
+      `[${moment().format('HH:mm:ss')}] Transaction error: ${
+        error.error.message
+      }`.red
     );
   } else {
     console.log(
-      `[${moment().format('HH:mm:ss')}] Unexpected transaction error: ${error}`.red
+      `[${moment().format('HH:mm:ss')}] Unexpected transaction error: ${error}`
+        .red
     );
   }
 }
