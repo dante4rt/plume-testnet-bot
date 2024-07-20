@@ -2,11 +2,11 @@
 
 ## Description
 
-Plume Testnet Bot is an application designed to interact with the Plume Network faucet on the testnet. It allows users to claim tokens (ETH or GOON) using their wallet address. The bot uses the Ethers.js library for Ethereum interactions and Axios for HTTP requests.
+Plume Testnet Bot is an application designed to interact with the Plume Network faucet on the testnet. It allows users to claim tokens (ETH) using their wallet address. The bot uses the Ethers.js library for Ethereum interactions and Axios for HTTP requests.
 
 ## Features
 
-- Claim ETH or GOON tokens from the Plume testnet faucet.
+- Claim ETH tokens from the Plume testnet faucet.
 - Automatically handles transactions and errors.
 - Provides real-time feedback and transaction details.
 
@@ -50,7 +50,7 @@ Plume Testnet Bot is an application designed to interact with the Plume Network 
     node index.js
     ```
 
-2. Follow the prompts to select the token (0 for ETH or 1 for GOON) you wish to claim.
+2. The bot will automatically start the faucet claiming process, retrying every 10 seconds if needed.
 
 ## Contributing
 
