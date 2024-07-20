@@ -1,67 +1,36 @@
-require('dotenv').config();
-require('colors');
-const readlineSync = require('readline-sync');
-const { default: axios } = require('axios');
-const { JsonRpcProvider } = require('ethers');
+const axios = require('axios');
 const moment = require('moment');
-const { displayHeader } = require('./src/display');
-const {
-  createWallet,
-  getAddress,
-  generateTransactionData,
-} = require('./src/wallet');
-const { PLUME_ABI } = require('./src/abi');
-const { HEADERS } = require('./src/headers');
-
-const RPC_URL = 'https://testnet-rpc.plumenetwork.xyz/http';
-const provider = new JsonRpcProvider(RPC_URL);
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const { delay, displayHeader, logSuccess, logError } = require('./src/utils');
+const { createWallet, getAddress } = require('./src/wallet');
+const { provider, PRIVATE_KEY, CONTRACT_ADDRESS } = require('./src/config');
 
 (async () => {
   displayHeader();
 
-  const walletAddress = getAddress(PRIVATE_KEY, provider);
-  console.log('Please wait...'.yellow);
-  console.log(`Your address: ${walletAddress}`.yellow);
-  console.log('');
-
-  let tokenChoice = readlineSync.question(
-    'Select token: 0 for ETH or 1 for GOON: '
-  );
-
-  while (tokenChoice !== '0' && tokenChoice !== '1') {
-    console.log('Invalid input. Please enter 0 for ETH or 1 for GOON.'.red);
-    tokenChoice = readlineSync.question(
-      'Select token: 0 for ETH or 1 for GOON: '
-    );
-  }
-
-  const token = tokenChoice === '0' ? 'ETH' : 'GOON';
-  console.log('');
-
   while (true) {
     try {
+      console.log('Starting the faucet claiming process...'.yellow);
+
+      const walletAddress = getAddress(PRIVATE_KEY, provider);
+      console.log(`Using wallet address: ${walletAddress}`.yellow);
       console.log('Requesting tokens from the faucet...'.yellow);
 
-      const { data } = await axios({
-        url: 'https://faucet.plumenetwork.xyz/api/faucet',
-        method: 'POST',
-        data: {
+      const { data } = await axios.post(
+        'https://faucet.plumenetwork.xyz/api/faucet',
+        {
           walletAddress,
-          token,
-        },
-        headers: HEADERS,
-      });
+          token: 'ETH',
+        }
+      );
 
-      console.log('Received faucet response.'.yellow);
-
-      const salt = data.salt;
-      const signature = data.signature;
+      const { salt, signature } = data;
 
       const wallet = createWallet(PRIVATE_KEY, provider);
-      const transactionData = generateTransactionData(salt, signature);
+      const transactionData = `0x103fc4520000000000000000000000000000000000000000000000000000000000000060${salt.substring(
+        2
+      )}00000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000345544800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000041${signature.substring(
+        2
+      )}00000000000000000000000000000000000000000000000000000000000000`;
 
       try {
         console.log('Preparing transaction...'.yellow);
@@ -69,81 +38,30 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         const feeData = await wallet.provider.getFeeData();
         const gasLimit = await wallet.estimateGas({
           data: transactionData,
-          to: PLUME_ABI.at(-1).CA,
+          to: CONTRACT_ADDRESS,
         });
         const gasPrice = feeData.gasPrice;
 
         const transaction = {
           data: transactionData,
-          to: PLUME_ABI.at(-1).CA,
-          gasLimit: gasLimit,
-          gasPrice: gasPrice,
-          nonce: nonce,
+          to: CONTRACT_ADDRESS,
+          gasLimit,
+          gasPrice,
+          nonce,
           value: 0,
         };
 
         console.log('Sending transaction...'.yellow);
         const result = await wallet.sendTransaction(transaction);
-        console.log(
-          `[${moment().format('HH:mm:ss')}] Claim to ${
-            result.from
-          } was successful!`.green
-        );
-        console.log(
-          `[${moment().format(
-            'HH:mm:ss'
-          )}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
-            result.hash
-          }`.green
-        );
-        console.log('');
-        break;
+        logSuccess(result.from, result.hash);
       } catch (error) {
-        if (error.shortMessage) {
-          if (error.shortMessage.includes('Signature is already used')) {
-            console.log(
-              `[${moment().format(
-                'HH:mm:ss'
-              )}] You can only claim faucet every 10 minutes, please try again later.`
-                .red
-            );
-          } else if (
-            error.shortMessage ===
-            'execution reverted: "Invalid admin signature"'
-          ) {
-            console.log(
-              `[${moment().format(
-                'HH:mm:ss'
-              )}] Your IP has been rate-limited by Plume. Please wait 10-30 minutes.`
-                .red
-            );
-          } else {
-            console.log(
-              `[${moment().format('HH:mm:ss')}] Error: ${error.shortMessage}`
-                .red
-            );
-          }
-        } else if (error.error && error.error.message) {
-          console.log(
-            `[${moment().format('HH:mm:ss')}] Error: ${error.error.message}`.red
-          );
-        } else {
-          console.log(
-            `[${moment().format(
-              'HH:mm:ss'
-            )}] Error while doing the transaction: ${error}`.red
-          );
-        }
+        logError(error);
       }
     } catch (error) {
-      if (error.message.includes('524')) {
-        console.log('Error: Request timeout'.red);
-      } else {
-        console.log(
-          `[${moment().format('HH:mm:ss')}] Error: ${error.message}`.red
-        );
-        break;
-      }
+      console.log(
+        `[${moment().format('HH:mm:ss')}] Critical error: ${error.message}`.red
+      );
+      break;
     }
 
     console.log('Retrying in 10 seconds...'.yellow);
