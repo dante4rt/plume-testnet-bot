@@ -262,20 +262,7 @@ const SWAP_ABI = [
     ],
     stateMutability: 'payable',
     type: 'function',
-  },
-  {
-    contractAddress: '0x4c722A53Cf9EB5373c655E1dD2dA95AcC10152D1',
-    baseCoin: '0x5c1409a46cd113b3a667db6df0a8d7be37ed3bb3',
-    quoteCoin: '0xba22114ec75f0d55c34a5e5a3cf384484ad9e733',
-    poolIndex: '36000',
-    isBuyOrder: false,
-    isBaseQuantity: false,
-    tradeQuantity: '1000000000000000',
-    tradeTip: '0',
-    limitOrderPrice: '65537',
-    minimumOutput: '995406972030214000',
-    reserveFlags: '0',
-  },
+  }
 ];
 
 module.exports = { SWAP_ABI };

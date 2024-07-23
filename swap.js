@@ -10,17 +10,31 @@ const { Wallet, Contract } = require('ethers');
 const { provider } = require('./src/config');
 const { displayHeader, delay } = require('./src/utils');
 
-const CONTRACT_ADDRESS = SWAP_ABI.at(-1).contractAddress;
-const BASE_TOKEN = SWAP_ABI.at(-1).baseCoin;
-const QUOTE_TOKEN = SWAP_ABI.at(-1).quoteCoin;
-const POOL_INDEX = SWAP_ABI.at(-1).poolIndex;
-const IS_BUY_ORDER = SWAP_ABI.at(-1).isBuyOrder;
-const IS_BASE_QUANTITY = SWAP_ABI.at(-1).isBaseQuantity;
-const TRADE_QUANTITY = SWAP_ABI.at(-1).tradeQuantity;
-const TRADE_TIP = SWAP_ABI.at(-1).tradeTip;
-const LIMIT_ORDER_PRICE = SWAP_ABI.at(-1).limitOrderPrice;
-const MINIMUM_OUTPUT = SWAP_ABI.at(-1).minimumOutput;
-const RESERVE_FLAGS = SWAP_ABI.at(-1).reserveFlags;
+const dataABI = {
+  contractAddress: '0x4c722A53Cf9EB5373c655E1dD2dA95AcC10152D1',
+  baseCoin: '0x5c1409a46cd113b3a667db6df0a8d7be37ed3bb3',
+  quoteCoin: '0xba22114ec75f0d55c34a5e5a3cf384484ad9e733',
+  poolIndex: '36000',
+  isBuyOrder: false,
+  isBaseQuantity: false,
+  tradeQuantity: '1000000000000000',
+  tradeTip: '0',
+  limitOrderPrice: '65537',
+  minimumOutput: '995406972030214000',
+  reserveFlags: '0',
+};
+
+const CONTRACT_ADDRESS = dataABI.contractAddress;
+const BASE_TOKEN = dataABI.baseCoin;
+const QUOTE_TOKEN = dataABI.quoteCoin;
+const POOL_INDEX = dataABI.poolIndex;
+const IS_BUY_ORDER = dataABI.isBuyOrder;
+const IS_BASE_QUANTITY = dataABI.isBaseQuantity;
+const TRADE_QUANTITY = dataABI.tradeQuantity;
+const TRADE_TIP = dataABI.tradeTip;
+const LIMIT_ORDER_PRICE = dataABI.limitOrderPrice;
+const MINIMUM_OUTPUT = dataABI.minimumOutput;
+const RESERVE_FLAGS = dataABI.reserveFlags;
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
