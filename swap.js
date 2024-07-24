@@ -1,5 +1,6 @@
 require('dotenv').config();
 require('colors');
+const fs = require('fs');
 const readlineSync = require('readline-sync');
 const { CronJob } = require('cron');
 const { execSync } = require('child_process');
@@ -37,16 +38,36 @@ const MINIMUM_OUTPUT = dataABI.minimumOutput;
 const RESERVE_FLAGS = dataABI.reserveFlags;
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const CONFIG_FILE = './config.json';
 
-const txCountInput = readlineSync.question(
-  'How many transactions do you want? (default is 1): '
-);
-let transactionCount = txCountInput ? parseInt(txCountInput, 10) : 1;
+const saveConfig = (config) => {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+};
 
-const autoRunInput = readlineSync.question(
-  'Do you want to auto run this script every 24 hours? (Y/N): '
-);
-const autoRun = autoRunInput.toLowerCase() === 'y';
+const loadConfig = () => {
+  if (fs.existsSync(CONFIG_FILE)) {
+    const rawConfig = fs.readFileSync(CONFIG_FILE);
+    return JSON.parse(rawConfig);
+  }
+  return null;
+};
+
+let config = loadConfig();
+
+if (!config) {
+  const txCountInput = readlineSync.question(
+    'How many transactions do you want? (default is 1): '
+  );
+  const transactionCount = txCountInput ? parseInt(txCountInput, 10) : 1;
+
+  const autoRunInput = readlineSync.question(
+    'Do you want to auto run this script every 24 hours? (Y/N): '
+  );
+  const autoRun = autoRunInput.toLowerCase() === 'y';
+
+  config = { transactionCount, autoRun };
+  saveConfig(config);
+}
 
 const performTransactions = async (count) => {
   displayHeader();
@@ -113,10 +134,10 @@ const performTransactions = async (count) => {
 };
 
 (async () => {
-  await performTransactions(transactionCount);
+  await performTransactions(config.transactionCount);
 
-  if (autoRun) {
-    const cronCommand = `node ${__filename} ${transactionCount}`;
+  if (config.autoRun) {
+    const cronCommand = `node ${__filename}`;
     const cronSchedule = '0 0 * * *';
     const timeZone = 'Asia/Jakarta';
 
