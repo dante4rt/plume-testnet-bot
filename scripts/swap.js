@@ -6,10 +6,10 @@ const { CronJob } = require('cron');
 const { execSync } = require('child_process');
 const moment = require('moment');
 
-const { SWAP_ABI } = require('./src/swapAbi');
+const { SWAP_ABI } = require('../src/ABI/swapAbi');
 const { Wallet, Contract } = require('ethers');
-const { provider } = require('./src/config');
-const { displayHeader, delay } = require('./src/utils');
+const { provider } = require('../src/utils/config');
+const { displayHeader, delay } = require('../src/utils/utils');
 
 const dataABI = {
   contractAddress: '0x4c722A53Cf9EB5373c655E1dD2dA95AcC10152D1',

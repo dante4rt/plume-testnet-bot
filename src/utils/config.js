@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { JsonRpcProvider } = require('ethers');
-const { PLUME_ABI } = require('./abi');
+const { PLUME_ABI } = require('../ABI/abi');
 
 const RPC_URL = 'https://testnet-rpc.plumenetwork.xyz/http';
 const CONTRACT_ADDRESS = PLUME_ABI.at(-1).CA;

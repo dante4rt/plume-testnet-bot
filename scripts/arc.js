@@ -5,9 +5,9 @@ const { ethers } = require('ethers');
 const readlineSync = require('readline-sync');
 const { CronJob } = require('cron');
 
-const { provider } = require('./src/config');
-const { ARC_ABI, ARC_UTILS } = require('./src/arcAbi');
-const { displayHeader } = require('./src/utils');
+const { provider } = require('../src/utils/config');
+const { ARC_ABI, ARC_UTILS } = require('../src/ABI/arcAbi');
+const { displayHeader } = require('../src/utils/utils');
 
 const PROXY_CONTRACT_ADDRESS = ARC_UTILS.PROXY_CA;
 const IMPLEMENTATION_CONTRACT_ADDRESS = ARC_UTILS.IMPLEMENTATION_CA;
@@ -49,16 +49,16 @@ async function createRwaToken(privateKey) {
   const gasPrice = feeData.gasPrice;
 
   const gasLimit = await wallet.estimateGas({
-    data: data,
+    data,
     to: PROXY_CONTRACT_ADDRESS,
   });
 
   const transaction = {
     to: PROXY_CONTRACT_ADDRESS,
-    data: data,
-    gasPrice: gasPrice,
-    gasLimit: gasLimit,
-    nonce: nonce,
+    data,
+    gasPrice,
+    gasLimit,
+    nonce,
     from: wallet.address,
   };
 
@@ -69,13 +69,15 @@ async function createRwaToken(privateKey) {
 
 async function runFactoryNFT() {
   displayHeader();
+  console.log('Preparing to mint NFTs...'.yellow);
+
   for (const PRIVATE_KEY of PRIVATE_KEYS) {
     try {
       const receipt = await createRwaToken(PRIVATE_KEY);
       console.log(
-        `[${moment().format('HH:mm:ss')}] Mint NFT for wallet ${
+        `[${moment().format('HH:mm:ss')}] Successfully minted NFT for wallet ${
           receipt.from
-        } has been successful! 🌟`.green
+        }! 🌟`.green
       );
       console.log(
         `[${moment().format(
@@ -87,14 +89,23 @@ async function runFactoryNFT() {
       console.log('');
     } catch (error) {
       console.error(
-        `[${moment().format('HH:mm:ss')}] Error creating token: ${error}`.red
+        `[${moment().format('HH:mm:ss')}] Error minting NFT: ${error.message}`
+          .red
       );
     }
   }
+
+  console.log('');
+  console.log(
+    `[${moment().format(
+      'HH:mm:ss'
+    )}] All NFT minting transactions are complete. Congratulations! Subscribe: https://t.me/HappyCuanAirdrop`
+      .blue
+  );
 }
 
 const userChoice = readlineSync.question(
-  'Would you like to run the check-in:\n0: One-time run\n1: Automate with cron (every 24 hours)\nChoose 0 or 1: '
+  'Would you like to run the NFT minting process:\n0: One-time run\n1: Automate with cron (every 24 hours)\nChoose 0 or 1: '
 );
 
 if (userChoice === '0') {
@@ -111,18 +122,19 @@ if (userChoice === '0') {
       );
       job.start();
       console.log(
-        'Cron job started! The check-in will run every 24 hours. 🕒'.cyan
+        'Cron job started! The NFT minting process will run every 24 hours. 🕒'
+          .cyan
       );
     })
     .catch((error) => {
       console.log(
-        `[${moment().format(
-          'HH:mm:ss'
-        )}] Error running check-in before setting up cron: ${error}`.red
+        `[${moment().format('HH:mm:ss')}] Error setting up cron job: ${
+          error.message
+        }`.red
       );
     });
 } else {
   console.log(
-    'Invalid choice! Please run the script again and choose either 0 or 1.'.red
+    'Invalid choice! Please run the script again and select either 0 or 1.'.red
   );
 }

@@ -9,7 +9,7 @@ Plume Testnet Bot is an application designed to interact with the Plume Network 
 - Claim ETH tokens from the Plume testnet faucet.
 - Automatically handles transactions and errors.
 - Provides real-time feedback and transaction details.
-- Includes a daily check-in feature for automated processes.
+- Includes a daily check-in, auto mint NFT, auto stake, and auto swap feature for automated processes.
 
 ## Requirements
 
@@ -40,7 +40,7 @@ Plume Testnet Bot is an application designed to interact with the Plume Network 
 
 4. Create a `.env` file in the root directory of the project. Add your private key to this file with the following format:
 
-    ```
+    ```env
     PRIVATE_KEY=your_private_key_here
     ```
 
@@ -52,27 +52,65 @@ Plume Testnet Bot is an application designed to interact with the Plume Network 
 
 ## Usage
 
-### Running the Bot
+### Running the Menu
 
-1. Run the bot to claim ETH tokens:
+1. Run the menu to choose which script to execute:
 
     ```bash
     node index.js
     ```
 
-2. The bot will automatically start the faucet claiming process, retrying every 10 seconds if needed.
+2. The menu will prompt you to select a script to run. Choose the desired option and follow the instructions to run the corresponding npm script.
 
-### Daily Check-In
+### Script Commands
 
-1. Run `daily.js` for automated daily check-ins:
+1. **Claim Faucet Daily:**
 
     ```bash
-    node daily.js
+    npm run faucet
     ```
 
-2. When prompted, choose:
-    - `0` for a one-time check-in.
-    - `1` to set up a cron job for automatic daily check-ins.
+2. **Auto Swap:**
+
+    ```bash
+    npm run swap
+    ```
+
+3. **Auto Stake 0.1 goonUSD:**
+
+    ```bash
+    npm run stake
+    ```
+
+4. **Auto Daily Check-In:**
+
+    ```bash
+    npm run daily
+    ```
+
+5. **Auto Mint NFT:**
+
+    ```bash
+    npm run mint
+    ```
+
+### Setting Up Cron Jobs
+
+For each script, you can set up cron jobs manually to run them at desired intervals. For example, to run the `faucet` script daily:
+
+1. Open your crontab:
+
+    ```bash
+    crontab -e
+    ```
+
+2. Add a line to schedule the `faucet` script to run daily at midnight:
+
+    ```bash
+    0 0 * * * cd /path/to/plume-testnet-bot && npm run faucet
+    ```
+
+Replace `/path/to/plume-testnet-bot` with the actual path to the directory.
 
 ## Donations
 

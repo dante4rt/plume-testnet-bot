@@ -1,9 +1,14 @@
 {
   "name": "plume-testnet-bot",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A bot for interacting with the Plume Testnet faucet and managing transactions automatically.",
   "main": "index.js",
   "scripts": {
+    "faucet": "node scripts/faucet.js",
+    "swap": "node scripts/swap.js",
+    "stake": "node scripts/stake.js",
+    "daily": "node scripts/daily.js",
+    "mint": "node scripts/arc.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -1,70 +1,41 @@
-const axios = require('axios');
-const moment = require('moment');
-const { delay, displayHeader, logSuccess, logError } = require('./src/utils');
-const { createWallet, getAddress } = require('./src/wallet');
-const { provider, PRIVATE_KEY, CONTRACT_ADDRESS } = require('./src/config');
+require('colors');
+const readlineSync = require('readline-sync');
+const { displayHeader } = require('./src/utils/utils');
 
-(async () => {
-  displayHeader();
+const scriptCommands = {
+  0: 'npm run faucet',
+  1: 'npm run swap',
+  2: 'npm run stake',
+  3: 'npm run daily',
+  4: 'npm run mint',
+};
 
-  while (true) {
-    try {
-      console.log('Starting the faucet claiming process...'.yellow);
+const scriptNames = {
+  0: 'Claim Faucet Daily',
+  1: 'Auto Swap',
+  2: 'Auto Stake 0.1 goonUSD',
+  3: 'Auto Daily Check-In',
+  4: 'Auto Mint NFT',
+};
 
-      const walletAddress = getAddress(PRIVATE_KEY, provider);
-      console.log(`Using wallet address: ${walletAddress}`.yellow);
-      console.log('Requesting tokens from the faucet...'.yellow);
+displayHeader();
+console.log('Welcome to the Script Runner by Happy Cuan Airdrop!'.bold.green);
+console.log('');
+console.log('Please choose a script to run:'.underline);
 
-      const { data } = await axios.post(
-        'https://faucet.plumenetwork.xyz/api/faucet',
-        {
-          walletAddress,
-          token: 'ETH',
-        }
-      );
+Object.keys(scriptNames).forEach((key) => {
+  console.log(`${key}: ${scriptNames[key].yellow}`);
+});
 
-      const { salt, signature } = data;
+const userChoice = parseInt(
+  readlineSync.question('Choose a script number: '.cyan),
+  10
+);
 
-      const wallet = createWallet(PRIVATE_KEY, provider);
-      const transactionData = `0x103fc4520000000000000000000000000000000000000000000000000000000000000060${salt.substring(
-        2
-      )}00000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000345544800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000041${signature.substring(
-        2
-      )}00000000000000000000000000000000000000000000000000000000000000`;
-
-      try {
-        console.log('Preparing transaction...'.yellow);
-        const nonce = await wallet.getNonce();
-        const feeData = await wallet.provider.getFeeData();
-        const gasLimit = await wallet.estimateGas({
-          data: transactionData,
-          to: CONTRACT_ADDRESS,
-        });
-        const gasPrice = feeData.gasPrice;
-
-        const transaction = {
-          data: transactionData,
-          to: CONTRACT_ADDRESS,
-          gasLimit,
-          gasPrice,
-          nonce,
-          value: 0,
-        };
-
-        console.log('Sending transaction...'.yellow);
-        const result = await wallet.sendTransaction(transaction);
-        logSuccess(result.from, result.hash);
-      } catch (error) {
-        logError(error);
-      }
-    } catch (error) {
-      console.log(
-        `[${moment().format('HH:mm:ss')}] Critical error: ${error.message}`.red
-      );
-      break;
-    }
-
-    console.log('Retrying in 10 seconds...'.yellow);
-    await delay(10000);
-  }
-})();
+if (scriptCommands.hasOwnProperty(userChoice)) {
+  console.log(`Please run: ${scriptCommands[userChoice]}`.blue);
+} else {
+  console.log(
+    'Invalid choice! Please run the script again and choose a valid number.'.red
+  );
+}
