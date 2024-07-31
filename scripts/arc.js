@@ -46,7 +46,7 @@ async function createRwaToken(privateKey) {
 
   const nonce = await provider.getTransactionCount(wallet.address);
   const feeData = await wallet.provider.getFeeData();
-  const gasPrice = feeData.gasPrice;
+  const gasPrice = feeData.maxFeePerGas;
 
   const gasLimit = await wallet.estimateGas({
     data,
