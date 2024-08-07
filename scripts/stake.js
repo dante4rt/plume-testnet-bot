@@ -32,7 +32,6 @@ async function doStake(privateKey) {
       parseEther('0.1'),
     ]);
 
-    const nonce = await provider.getTransactionCount(wallet.address);
     const feeData = await wallet.provider.getFeeData();
     const gasPrice = feeData.gasPrice;
 
@@ -46,7 +45,6 @@ async function doStake(privateKey) {
       data,
       gasLimit,
       gasPrice,
-      nonce,
       from: wallet.address,
     };
 
