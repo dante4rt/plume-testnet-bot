@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "faucet": "node scripts/faucet.js",
+    "goon": "node scripts/faucetGoon.js",
     "swap": "node scripts/swap.js",
     "stake": "node scripts/stake.js",
     "daily": "node scripts/daily.js",

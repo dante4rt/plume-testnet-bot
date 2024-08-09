@@ -1,4 +1,4 @@
-const PLUME_ABI = [
+const GOON_ABI = [
   {
     inputs: [
       {
@@ -493,10 +493,6 @@ const PLUME_ABI = [
     stateMutability: 'payable',
     type: 'receive',
   },
-  {
-    CA: '0x075e2D02EBcea5dbcE6b7C9F3D203613c0D5B33B',
-    IMPLEMENTATION_CA: '0xCAE314d2F47De90e3B13b16eeaf121ee48F509FC',
-  },
 ];
 
-module.exports = { PLUME_ABI };
+module.exports = { GOON_ABI };
