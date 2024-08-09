@@ -108,7 +108,14 @@ const performTransactions = async (count) => {
       );
 
       if (count !== 0) {
-        await delay(10000);
+        const min = Math.ceil(10000);
+        const max = Math.floor(60000);
+        const delayTime = Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        console.log('');
+        console.log(`Wait ${delayTime/1000} second before next swap`.yellow);
+
+        await delay(delayTime);
       }
     } catch (error) {
       console.log(
