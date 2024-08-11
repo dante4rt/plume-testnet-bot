@@ -88,6 +88,22 @@ const runPredictionForAllWallets = async (selectedPair, isLong) => {
   }
 };
 
+const predictForAllPairs = async (isLong) => {
+  const type = 'crypto'; // or 'forex', based on your requirement
+  const availablePairs = filterPairsByType(type, PREDICT_PAIR);
+
+  for (const pair of availablePairs) {
+    console.log(
+      colors.green(
+        `[${moment().format('HH:mm:ss')}] Predicting for pair: ${pair.name} (${
+          pair.symbol
+        })`
+      )
+    );
+    await runPredictionForAllWallets(pair, isLong);
+  }
+};
+
 const main = async () => {
   displayHeader();
   console.log(`Please wait...`.yellow);
@@ -101,75 +117,127 @@ const main = async () => {
     );
 
     const type = predictionType === '1' ? 'crypto' : 'forex';
-
     const availablePairs = filterPairsByType(type, PREDICT_PAIR);
-    const pairNames = availablePairs.map(
-      (pair, index) => `${index + 1}. ${pair.name} (${pair.symbol})`
-    );
-    const pairIndex = readlineSync.keyInSelect(
-      pairNames,
-      colors.cyan('Choose a pair: ')
-    );
 
-    if (pairIndex === -1) {
-      console.log(
-        colors.red(
-          `[${moment().format('HH:mm:ss')}] No pair selected. Exiting...`
-        )
-      );
-      return;
-    }
-
-    const selectedPair = availablePairs[pairIndex];
-    console.log(
-      colors.green(
-        `[${moment().format('HH:mm:ss')}] You selected: ${selectedPair.name} (${
-          selectedPair.symbol
-        })`
+    const choice = readlineSync.question(
+      colors.yellow(
+        'Do you want to predict:\n1. One specific pair\n2. All available pairs\nSelect (1 or 2): '
       )
     );
 
-    let longOrShort;
-    while (!longOrShort) {
-      const input = readlineSync
-        .question(
-          colors.yellow(
-            'Do you want to go Long or Short? (Type "long" or "short"): '
-          )
-        )
-        .toLowerCase();
+    if (choice === '1') {
+      const pairNames = availablePairs.map(
+        (pair, index) => `${index + 1}. ${pair.name} (${pair.symbol})`
+      );
+      const pairIndex = readlineSync.keyInSelect(
+        pairNames,
+        colors.cyan('Choose a pair: ')
+      );
 
-      if (input === 'long' || input === 'short') {
-        longOrShort = input;
-      } else {
+      if (pairIndex === -1) {
         console.log(
-          colors.red('Invalid input, please type "long" or "short".')
+          colors.red(
+            `[${moment().format('HH:mm:ss')}] No pair selected. Exiting...`
+          )
         );
+        return;
       }
-    }
-    const isLong = longOrShort === 'long';
 
-    const runEveryHour = readlineSync.keyInYN(
-      colors.yellow('Do you want to run this prediction every 1 hour?')
-    );
-
-    if (runEveryHour) {
-      await runPredictionForAllWallets(selectedPair, isLong);
-      console.log('');
-
-      const job = new cron.CronJob('0 * * * *', () => {
-        runPredictionForAllWallets(selectedPair, isLong);
-      });
-      job.start();
+      const selectedPair = availablePairs[pairIndex];
       console.log(
         colors.green(
-          `[${moment().format(
-            'HH:mm:ss'
-          )}] Cron job started: Prediction will run every 1 hour.`
+          `[${moment().format('HH:mm:ss')}] You selected: ${
+            selectedPair.name
+          } (${selectedPair.symbol})`
         )
       );
+
+      let longOrShort;
+      while (!longOrShort) {
+        const input = readlineSync
+          .question(
+            colors.yellow(
+              'Do you want to go Long or Short? (Type "long" or "short"): '
+            )
+          )
+          .toLowerCase();
+
+        if (input === 'long' || input === 'short') {
+          longOrShort = input;
+        } else {
+          console.log(
+            colors.red('Invalid input, please type "long" or "short".')
+          );
+        }
+      }
+      const isLong = longOrShort === 'long';
+
+      const runEveryHour = readlineSync.keyInYN(
+        colors.yellow('Do you want to run this prediction every 1 hour?')
+      );
+
+      if (runEveryHour) {
+        await runPredictionForAllWallets(selectedPair, isLong);
+        console.log('');
+
+        const job = new cron.CronJob('0 * * * *', () => {
+          runPredictionForAllWallets(selectedPair, isLong);
+        });
+        job.start();
+        console.log(
+          colors.green(
+            `[${moment().format(
+              'HH:mm:ss'
+            )}] Cron job started: Prediction will run every 1 hour.`
+          )
+        );
+      } else {
+        await runPredictionForAllWallets(selectedPair, isLong);
+      }
+    } else if (choice === '2') {
+      let longOrShort;
+      while (!longOrShort) {
+        const input = readlineSync
+          .question(
+            colors.yellow(
+              'Do you want to go Long or Short? (Type "long" or "short"): '
+            )
+          )
+          .toLowerCase();
+
+        if (input === 'long' || input === 'short') {
+          longOrShort = input;
+        } else {
+          console.log(
+            colors.red('Invalid input, please type "long" or "short".')
+          );
+        }
+      }
+      const isLong = longOrShort === 'long';
+
+      const runEveryHour = readlineSync.keyInYN(
+        colors.yellow(
+          'Do you want to run predictions every 1 hour for all pairs?'
+        )
+      );
+
+      if (runEveryHour) {
+        const job = new cron.CronJob('0 * * * *', () => {
+          predictForAllPairs(isLong);
+        });
+        job.start();
+        console.log(
+          colors.green(
+            `[${moment().format(
+              'HH:mm:ss'
+            )}] Cron job started: Predictions will run every 1 hour for all pairs.`
+          )
+        );
+      } else {
+        await predictForAllPairs(isLong);
+      }
     } else {
-      await runPredictionForAllWallets(selectedPair, isLong);
+      console.log(colors.red('Invalid choice, exiting...'));
     }
   } catch (error) {
     console.log(
