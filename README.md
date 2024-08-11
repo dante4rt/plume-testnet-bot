@@ -100,6 +100,12 @@ Plume Testnet Bot is an application designed to interact with the Plume Network 
     npm run goon
     ```
 
+7. **Auto Predict:**
+
+    ```bash
+    npm run predict
+    ```
+
 ### Setting Up Cron Jobs
 
 For each script, you can set up cron jobs manually to run them at desired intervals. For example, to run the `faucet` script daily:
