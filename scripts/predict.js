@@ -88,8 +88,7 @@ const runPredictionForAllWallets = async (selectedPair, isLong) => {
   }
 };
 
-const predictForAllPairs = async (isLong) => {
-  const type = 'crypto'; // or 'forex', based on your requirement
+const predictForAllPairs = async (type, isLong) => {
   const availablePairs = filterPairsByType(type, PREDICT_PAIR);
 
   for (const pair of availablePairs) {
@@ -117,7 +116,6 @@ const main = async () => {
     );
 
     const type = predictionType === '1' ? 'crypto' : 'forex';
-    const availablePairs = filterPairsByType(type, PREDICT_PAIR);
 
     const choice = readlineSync.question(
       colors.yellow(
@@ -126,6 +124,7 @@ const main = async () => {
     );
 
     if (choice === '1') {
+      const availablePairs = filterPairsByType(type, PREDICT_PAIR);
       const pairNames = availablePairs.map(
         (pair, index) => `${index + 1}. ${pair.name} (${pair.symbol})`
       );
@@ -223,7 +222,7 @@ const main = async () => {
 
       if (runEveryHour) {
         const job = new cron.CronJob('0 * * * *', () => {
-          predictForAllPairs(isLong);
+          predictForAllPairs(type, isLong);
         });
         job.start();
         console.log(
@@ -234,7 +233,7 @@ const main = async () => {
           )
         );
       } else {
-        await predictForAllPairs(isLong);
+        await predictForAllPairs(type, isLong);
       }
     } else {
       console.log(colors.red('Invalid choice, exiting...'));
