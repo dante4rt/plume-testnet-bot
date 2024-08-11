@@ -221,6 +221,8 @@ const main = async () => {
       );
 
       if (runEveryHour) {
+        await predictForAllPairs(type, isLong);
+
         const job = new cron.CronJob('0 * * * *', () => {
           predictForAllPairs(type, isLong);
         });
