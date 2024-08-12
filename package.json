@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "faucet": "node scripts/faucet.js",
+    "goon": "node scripts/faucetGoon.js",
     "swap": "node scripts/swap.js",
     "stake": "node scripts/stake.js",
     "daily": "node scripts/daily.js",
     "mint": "node scripts/arc.js",
+    "predict": "node scripts/predict.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

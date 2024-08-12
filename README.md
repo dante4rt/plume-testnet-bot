@@ -6,7 +6,7 @@ Plume Testnet Bot is an application designed to interact with the Plume Network 
 
 ## Features
 
-- Claim ETH tokens from the Plume testnet faucet.
+- Claim ETH and GOON tokens from the Plume testnet faucet.
 - Automatically handles transactions and errors.
 - Provides real-time feedback and transaction details.
 - Includes a daily check-in, auto mint NFT, auto stake, and auto swap feature for automated processes.
@@ -64,7 +64,7 @@ Plume Testnet Bot is an application designed to interact with the Plume Network 
 
 ### Script Commands
 
-1. **Claim Faucet Daily:**
+1. **Claim ETH Faucet Daily:**
 
     ```bash
     npm run faucet
@@ -92,6 +92,18 @@ Plume Testnet Bot is an application designed to interact with the Plume Network 
 
     ```bash
     npm run mint
+    ```
+
+6. **Claim GOON Faucet Daily:**
+
+    ```bash
+    npm run goon
+    ```
+
+7. **Auto Predict:**
+
+    ```bash
+    npm run predict
     ```
 
 ### Setting Up Cron Jobs

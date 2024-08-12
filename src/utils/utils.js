@@ -61,4 +61,16 @@ function logError(error) {
   }
 }
 
-module.exports = { delay, displayHeader, logSuccess, logError };
+const filterPairsByType = (type, predictPair) => {
+  return Object.entries(predictPair)
+    .filter(([_, pair]) => pair.type === type)
+    .map(([index, pair]) => ({ index, ...pair }));
+};
+
+module.exports = {
+  delay,
+  displayHeader,
+  logSuccess,
+  logError,
+  filterPairsByType,
+};
