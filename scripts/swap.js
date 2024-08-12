@@ -71,6 +71,8 @@ if (!config) {
 
 const performTransactions = async (count) => {
   displayHeader();
+  
+  console.log(`Perform ${count} tx`.yellow);
   console.log(`[${moment().format('HH:mm:ss')}] Please wait...`.yellow);
   console.log('');
 
@@ -113,7 +115,7 @@ const performTransactions = async (count) => {
         const delayTime = Math.floor(Math.random() * (max - min + 1)) + min;
         
         console.log('');
-        console.log(`Wait ${delayTime/1000} second before next swap`.yellow);
+        console.log(`Wait ${delayTime/1000} seconds before next swap`.yellow);
 
         await delay(delayTime);
       }
@@ -141,7 +143,11 @@ const performTransactions = async (count) => {
 };
 
 (async () => {
-  await performTransactions(config.transactionCount);
+  const min = Math.ceil(5);
+  const max = Math.floor(10);
+  const txCount = Math.floor(Math.random() * (max - min + 1)) + min;
+    
+  await performTransactions(txCount);
 
   if (config.autoRun) {
     const cronCommand = `node ${__filename}`;
