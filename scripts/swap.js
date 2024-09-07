@@ -104,7 +104,7 @@ const performTransaction = async () => {
         }`.green
       );
 
-      success = true; // Exit loop on success
+      success = true;
     } catch (error) {
       console.log(
         `[${moment().format(
@@ -113,7 +113,7 @@ const performTransaction = async () => {
           error.message
         }`.red
       );
-      await delay(10000); // Wait before retrying
+      await delay(10000);
     }
   }
 };

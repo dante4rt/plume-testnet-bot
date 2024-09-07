@@ -48,7 +48,7 @@ async function checkDailyStreak(wallet) {
           }`.green
         );
         console.log('');
-        break;  // Exit the loop on success
+        break;
       }
     } catch (error) {
       console.log(
@@ -57,8 +57,7 @@ async function checkDailyStreak(wallet) {
         }) check-in failed. Retrying... 🚫`.red
       );
       console.log('');
-      // Wait for 10 seconds before retrying
-      await new Promise((resolve) => setTimeout(resolve, 10000)); // 10 seconds
+      await new Promise((resolve) => setTimeout(resolve, 10000));
     }
   }
 }
@@ -85,15 +84,15 @@ if (userChoice === '0') {
 } else if (userChoice === '1') {
   async function scheduleCheckIn() {
     await runCheckIn();
-    // Wait for 24 hours and 5 minutes before the next check-in
-    const waitTime = 24 * 60 * 60 * 1000 + 5 * 60 * 1000; // 24 hours + 5 minutes
+    const waitTime = 24 * 60 * 60 * 1000 + 5 * 60 * 1000;
     setTimeout(scheduleCheckIn, waitTime);
   }
 
   scheduleCheckIn()
     .then(() => {
       console.log(
-        'Check-in scheduling started! The check-in will run every 24 hours and 5 minutes. 🕒'.cyan
+        'Check-in scheduling started! The check-in will run every 24 hours and 5 minutes. 🕒'
+          .cyan
       );
     })
     .catch((error) => {
