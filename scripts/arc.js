@@ -70,15 +70,16 @@ async function createRwaToken(privateKey) {
       const txResponse = await wallet.sendTransaction(transaction);
       txHash = txResponse.hash;
 
-      // Wait for the transaction to be mined
       await txResponse.wait();
 
-      success = true; // Exit loop on success
+      success = true;
     } catch (error) {
       console.error(
-        `[${moment().format('HH:mm:ss')}] Error sending transaction: ${error.message}`.red
+        `[${moment().format('HH:mm:ss')}] Error sending transaction: ${
+          error.message
+        }`.red
       );
-      await new Promise(resolve => setTimeout(resolve, 10000)); // Wait before retrying
+      await new Promise((resolve) => setTimeout(resolve, 10000));
     }
   }
 
@@ -98,21 +99,27 @@ async function runFactoryNFT() {
         }! 🌟`.green
       );
       console.log(
-        `[${moment().format('HH:mm:ss')}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
+        `[${moment().format(
+          'HH:mm:ss'
+        )}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
           receipt.hash
         }`.green
       );
       console.log('');
     } catch (error) {
       console.error(
-        `[${moment().format('HH:mm:ss')}] Error minting NFT: ${error.message}`.red
+        `[${moment().format('HH:mm:ss')}] Error minting NFT: ${error.message}`
+          .red
       );
     }
   }
 
   console.log('');
   console.log(
-    `[${moment().format('HH:mm:ss')}] All NFT minting transactions are complete. Congratulations! Subscribe: https://t.me/HappyCuanAirdrop`.blue
+    `[${moment().format(
+      'HH:mm:ss'
+    )}] All NFT minting transactions are complete. Congratulations! Subscribe: https://t.me/HappyCuanAirdrop`
+      .blue
   );
 }
 
@@ -134,12 +141,15 @@ if (userChoice === '0') {
       );
       job.start();
       console.log(
-        'Cron job started! The NFT minting process will run every 24 hours. 🕒'.cyan
+        'Cron job started! The NFT minting process will run every 24 hours. 🕒'
+          .cyan
       );
     })
     .catch((error) => {
       console.log(
-        `[${moment().format('HH:mm:ss')}] Error setting up cron job: ${error.message}`.red
+        `[${moment().format('HH:mm:ss')}] Error setting up cron job: ${
+          error.message
+        }`.red
       );
     });
 } else {

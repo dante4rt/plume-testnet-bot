@@ -14,10 +14,7 @@ const { displayHeader } = require('../src/utils/utils');
 const CONTRACT = CHECKIN_ABI.at(-1).CA;
 const PRIVATE_KEYS = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
 
-
 const MAX_ATTEMPTS = 10;
-
-
 const walletsCheckedIn = new Set();
 
 async function checkDailyStreak(wallet) {
@@ -25,7 +22,6 @@ async function checkDailyStreak(wallet) {
 
   while (attemptCount < MAX_ATTEMPTS) {
     try {
- 
       if (walletsCheckedIn.has(wallet.address)) {
         console.log(
           `[${moment().format('HH:mm:ss')}] Wallet ${wallet.address} has already checked in. Skipping...`.yellow
@@ -57,9 +53,7 @@ async function checkDailyStreak(wallet) {
           } has been successful! 🌟`.green
         );
         console.log(
-          `[${moment().format(
-            'HH:mm:ss'
-          )}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
+          `[${moment().format('HH:mm:ss')}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
             result.hash
           }`.green
         );
@@ -79,7 +73,6 @@ async function checkDailyStreak(wallet) {
     }
   }
 
-  
   console.log(
     `[${moment().format('HH:mm:ss')}] Wallet ${
       wallet.address
@@ -122,9 +115,7 @@ if (userChoice === '0') {
     })
     .catch((error) => {
       console.log(
-        `[${moment().format(
-          'HH:mm:ss'
-        )}] Error running check-in before scheduling: ${error}`.red
+        `[${moment().format('HH:mm:ss')}] Error running check-in before scheduling: ${error}`.red
       );
     });
 } else {
