@@ -17,52 +17,52 @@ const GOON_CA = STAKE_UTILS.goonCA;
 const PRIVATE_KEYS = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
 
 async function doStake(privateKey) {
-  try {
-    const wallet = createWallet(privateKey, provider);
-    const implementationContract = new Contract(
-      IMPLEMENTATION_CA,
-      STAKE_ABI,
-      wallet
-    );
-
-    const goonContract = new Contract(GOON_CA, ERC20_ABI, wallet);
-    await goonContract.approve(CA, parseEther('1'));
-
-    const data = implementationContract.interface.encodeFunctionData('stake', [
-      parseEther('0.1'),
-    ]);
-
-    const feeData = await wallet.provider.getFeeData();
-    const gasPrice = feeData.gasPrice;
-
-    const gasLimit = await wallet.estimateGas({
-      data,
-      to: CA,
-    });
-
-    const transaction = {
-      to: CA,
-      data,
-      gasLimit,
-      gasPrice,
-      from: wallet.address,
-    };
-
-    const txHash = await wallet.sendTransaction(transaction);
-    return txHash;
-  } catch (error) {
-    if (error.message.includes('CALL_EXCEPTION')) {
-      console.log(
-        `[${moment().format(
-          'HH:mm:ss'
-        )}] Insufficient balance. Please top up using the faucet first.`.red
+  const retryDelay = 5000; // 5 seconds delay between retries
+  
+  while (true) {
+    try {
+      const wallet = createWallet(privateKey, provider);
+      const implementationContract = new Contract(
+        IMPLEMENTATION_CA,
+        STAKE_ABI,
+        wallet
       );
-    } else {
+
+      const goonContract = new Contract(GOON_CA, ERC20_ABI, wallet);
+      await goonContract.approve(CA, parseEther('1'));
+
+      const data = implementationContract.interface.encodeFunctionData('stake', [
+        parseEther('0.1'),
+      ]);
+
+      const feeData = await wallet.provider.getFeeData();
+      const gasPrice = feeData.gasPrice;
+
+      const gasLimit = await wallet.estimateGas({
+        data,
+        to: CA,
+      });
+
+      const transaction = {
+        to: CA,
+        data,
+        gasLimit,
+        gasPrice,
+        from: wallet.address,
+      };
+
+      const txHash = await wallet.sendTransaction(transaction);
+      return txHash;
+    } catch (error) {
       console.log(
         `[${moment().format('HH:mm:ss')}] Error executing transaction: ${
           error.message
         }`.red
       );
+      console.log(
+        `[${moment().format('HH:mm:ss')}] Retrying transaction in ${retryDelay / 1000} seconds...`.yellow
+      );
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
     }
   }
 }
@@ -76,15 +76,11 @@ async function runStakeGoon() {
       const receipt = await doStake(PRIVATE_KEY);
       if (receipt.from) {
         console.log(
-          `[${moment().format(
-            'HH:mm:ss'
-          )}] Successfully staked 0.1 $GOONUSD for wallet ${receipt.from}! 🌟`
+          `[${moment().format('HH:mm:ss')}] Successfully staked 0.1 $GOONUSD for wallet ${receipt.from}! 🌟`
             .green
         );
         console.log(
-          `[${moment().format(
-            'HH:mm:ss'
-          )}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
+          `[${moment().format('HH:mm:ss')}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
             receipt.hash
           }`.green
         );
@@ -92,17 +88,13 @@ async function runStakeGoon() {
       }
     } catch (error) {
       console.log(
-        `[${moment().format(
-          'HH:mm:ss'
-        )}] Error processing transaction. Please try again later.`.red
+        `[${moment().format('HH:mm:ss')}] Error processing transaction. Please try again later.`.red
       );
     }
   }
 
   console.log(
-    `[${moment().format(
-      'HH:mm:ss'
-    )}] All staking transactions completed. Congratulations! Subscribe: https://t.me/HappyCuanAirdrop`
+    `[${moment().format('HH:mm:ss')}] All staking transactions completed. Congratulations! Subscribe: https://t.me/HappyCuanAirdrop`
       .blue
   );
 }
