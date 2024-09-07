@@ -14,9 +14,21 @@ const { displayHeader } = require('../src/utils/utils');
 const CONTRACT = CHECKIN_ABI.at(-1).CA;
 const PRIVATE_KEYS = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
 
+const MAX_ATTEMPTS = 10;
+const walletsCheckedIn = new Set();
+
 async function checkDailyStreak(wallet) {
-  while (true) {
+  let attemptCount = 0;
+
+  while (attemptCount < MAX_ATTEMPTS) {
     try {
+      if (walletsCheckedIn.has(wallet.address)) {
+        console.log(
+          `[${moment().format('HH:mm:ss')}] Wallet ${wallet.address} has already checked in. Skipping...`.yellow
+        );
+        return;
+      }
+
       const feeData = await wallet.provider.getFeeData();
       const nonce = await provider.getTransactionCount(wallet.address);
       const gasFee = feeData.gasPrice;
@@ -41,25 +53,31 @@ async function checkDailyStreak(wallet) {
           } has been successful! 🌟`.green
         );
         console.log(
-          `[${moment().format(
-            'HH:mm:ss'
-          )}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
+          `[${moment().format('HH:mm:ss')}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
             result.hash
           }`.green
         );
         console.log('');
-        break;
+        walletsCheckedIn.add(wallet.address); 
+        return; 
       }
     } catch (error) {
       console.log(
-        `[${moment().format('HH:mm:ss')}] Your address (${
+        `[${moment().format('HH:mm:ss')}] Wallet ${
           wallet.address
-        }) check-in failed. Retrying... 🚫`.red
+        } check-in failed. Retrying (${attemptCount + 1})... 🚫`.red
       );
       console.log('');
-      await new Promise((resolve) => setTimeout(resolve, 10000));
+      attemptCount++;
+      await new Promise((resolve) => setTimeout(resolve, 10000)); 
     }
   }
+
+  console.log(
+    `[${moment().format('HH:mm:ss')}] Wallet ${
+      wallet.address
+    } failed after ${MAX_ATTEMPTS} attempts. Moving to the next wallet. ❌`.red
+  );
 }
 
 async function runCheckIn() {
@@ -97,9 +115,7 @@ if (userChoice === '0') {
     })
     .catch((error) => {
       console.log(
-        `[${moment().format(
-          'HH:mm:ss'
-        )}] Error running check-in before scheduling: ${error}`.red
+        `[${moment().format('HH:mm:ss')}] Error running check-in before scheduling: ${error}`.red
       );
     });
 } else {
