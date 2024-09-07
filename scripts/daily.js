@@ -14,10 +14,10 @@ const { displayHeader } = require('../src/utils/utils');
 const CONTRACT = CHECKIN_ABI.at(-1).CA;
 const PRIVATE_KEYS = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
 
-// Maximum number of attempts for a single wallet
+
 const MAX_ATTEMPTS = 10;
 
-// Track which wallets have been checked in
+
 const walletsCheckedIn = new Set();
 
 async function checkDailyStreak(wallet) {
@@ -25,7 +25,7 @@ async function checkDailyStreak(wallet) {
 
   while (attemptCount < MAX_ATTEMPTS) {
     try {
-      // Check if wallet has already checked in
+ 
       if (walletsCheckedIn.has(wallet.address)) {
         console.log(
           `[${moment().format('HH:mm:ss')}] Wallet ${wallet.address} has already checked in. Skipping...`.yellow
@@ -64,8 +64,8 @@ async function checkDailyStreak(wallet) {
           }`.green
         );
         console.log('');
-        walletsCheckedIn.add(wallet.address); // Add wallet to checked-in set
-        return; // Exit the function if successful
+        walletsCheckedIn.add(wallet.address); 
+        return; 
       }
     } catch (error) {
       console.log(
@@ -75,11 +75,11 @@ async function checkDailyStreak(wallet) {
       );
       console.log('');
       attemptCount++;
-      await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait before retrying
+      await new Promise((resolve) => setTimeout(resolve, 10000)); 
     }
   }
 
-  // Log failure after max attempts
+  
   console.log(
     `[${moment().format('HH:mm:ss')}] Wallet ${
       wallet.address
