@@ -14,9 +14,25 @@ const { displayHeader } = require('../src/utils/utils');
 const CONTRACT = CHECKIN_ABI.at(-1).CA;
 const PRIVATE_KEYS = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
 
+// Maximum number of attempts for a single wallet
+const MAX_ATTEMPTS = 10;
+
+// Track which wallets have been checked in
+const walletsCheckedIn = new Set();
+
 async function checkDailyStreak(wallet) {
-  while (true) {
+  let attemptCount = 0;
+
+  while (attemptCount < MAX_ATTEMPTS) {
     try {
+      // Check if wallet has already checked in
+      if (walletsCheckedIn.has(wallet.address)) {
+        console.log(
+          `[${moment().format('HH:mm:ss')}] Wallet ${wallet.address} has already checked in. Skipping...`.yellow
+        );
+        return;
+      }
+
       const feeData = await wallet.provider.getFeeData();
       const nonce = await provider.getTransactionCount(wallet.address);
       const gasFee = feeData.gasPrice;
@@ -48,19 +64,27 @@ async function checkDailyStreak(wallet) {
           }`.green
         );
         console.log('');
-        break;  // Exit the loop on success
+        walletsCheckedIn.add(wallet.address); // Add wallet to checked-in set
+        return; // Exit the function if successful
       }
     } catch (error) {
       console.log(
-        `[${moment().format('HH:mm:ss')}] Your address (${
+        `[${moment().format('HH:mm:ss')}] Wallet ${
           wallet.address
-        }) check-in failed. Retrying... 🚫`.red
+        } check-in failed. Retrying (${attemptCount + 1})... 🚫`.red
       );
       console.log('');
-      // Wait for 10 seconds before retrying
-      await new Promise((resolve) => setTimeout(resolve, 10000)); // 10 seconds
+      attemptCount++;
+      await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait before retrying
     }
   }
+
+  // Log failure after max attempts
+  console.log(
+    `[${moment().format('HH:mm:ss')}] Wallet ${
+      wallet.address
+    } failed after ${MAX_ATTEMPTS} attempts. Moving to the next wallet. ❌`.red
+  );
 }
 
 async function runCheckIn() {
@@ -85,15 +109,15 @@ if (userChoice === '0') {
 } else if (userChoice === '1') {
   async function scheduleCheckIn() {
     await runCheckIn();
-    // Wait for 24 hours and 5 minutes before the next check-in
-    const waitTime = 24 * 60 * 60 * 1000 + 5 * 60 * 1000; // 24 hours + 5 minutes
+    const waitTime = 24 * 60 * 60 * 1000 + 5 * 60 * 1000;
     setTimeout(scheduleCheckIn, waitTime);
   }
 
   scheduleCheckIn()
     .then(() => {
       console.log(
-        'Check-in scheduling started! The check-in will run every 24 hours and 5 minutes. 🕒'.cyan
+        'Check-in scheduling started! The check-in will run every 24 hours and 5 minutes. 🕒'
+          .cyan
       );
     })
     .catch((error) => {
