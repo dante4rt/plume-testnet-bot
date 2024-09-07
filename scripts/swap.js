@@ -69,12 +69,9 @@ if (!config) {
   saveConfig(config);
 }
 
-const performTransactions = async (count) => {
-  displayHeader();
-  console.log(`[${moment().format('HH:mm:ss')}] Please wait...`.yellow);
-  console.log('');
-
-  while (count > 0) {
+const performTransaction = async () => {
+  let success = false;
+  while (!success) {
     try {
       const wallet = new Wallet(PRIVATE_KEY, provider);
       const contract = new Contract(CONTRACT_ADDRESS, SWAP_ABI, wallet);
@@ -107,9 +104,7 @@ const performTransactions = async (count) => {
         }`.green
       );
 
-      if (count !== 0) {
-        await delay(10000);
-      }
+      success = true; // Exit loop on success
     } catch (error) {
       console.log(
         `[${moment().format(
@@ -118,7 +113,18 @@ const performTransactions = async (count) => {
           error.message
         }`.red
       );
+      await delay(10000); // Wait before retrying
     }
+  }
+};
+
+const performTransactions = async (count) => {
+  displayHeader();
+  console.log(`[${moment().format('HH:mm:ss')}] Please wait...`.yellow);
+  console.log('');
+
+  while (count > 0) {
+    await performTransaction();
     count--;
 
     if (count === 0) {
