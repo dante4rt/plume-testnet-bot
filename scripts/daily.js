@@ -15,46 +15,51 @@ const CONTRACT = CHECKIN_ABI.at(-1).CA;
 const PRIVATE_KEYS = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
 
 async function checkDailyStreak(wallet) {
-  try {
-    const feeData = await wallet.provider.getFeeData();
-    const nonce = await provider.getTransactionCount(wallet.address);
-    const gasFee = feeData.gasPrice;
-    const gasLimit = await wallet.estimateGas({
-      data: CHECKIN_ABI.at(-1).data,
-      to: CONTRACT,
-    });
-    const tx = {
-      to: CONTRACT,
-      from: wallet.address,
-      nonce,
-      data: CHECKIN_ABI.at(-1).data,
-      gas: gasLimit,
-      gasPrice: gasFee,
-    };
+  while (true) {
+    try {
+      const feeData = await wallet.provider.getFeeData();
+      const nonce = await provider.getTransactionCount(wallet.address);
+      const gasFee = feeData.gasPrice;
+      const gasLimit = await wallet.estimateGas({
+        data: CHECKIN_ABI.at(-1).data,
+        to: CONTRACT,
+      });
+      const tx = {
+        to: CONTRACT,
+        from: wallet.address,
+        nonce,
+        data: CHECKIN_ABI.at(-1).data,
+        gas: gasLimit,
+        gasPrice: gasFee,
+      };
 
-    const result = await wallet.sendTransaction(tx);
-    if (result.hash) {
+      const result = await wallet.sendTransaction(tx);
+      if (result.hash) {
+        console.log(
+          `[${moment().format('HH:mm:ss')}] Daily check-in for wallet ${
+            wallet.address
+          } has been successful! 🌟`.green
+        );
+        console.log(
+          `[${moment().format(
+            'HH:mm:ss'
+          )}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
+            result.hash
+          }`.green
+        );
+        console.log('');
+        break;  // Exit the loop on success
+      }
+    } catch (error) {
       console.log(
-        `[${moment().format('HH:mm:ss')}] Daily check-in for wallet ${
+        `[${moment().format('HH:mm:ss')}] Your address (${
           wallet.address
-        } has been successful! 🌟`.green
-      );
-      console.log(
-        `[${moment().format(
-          'HH:mm:ss'
-        )}] Transaction hash: https://testnet-explorer.plumenetwork.xyz/tx/${
-          result.hash
-        }`.green
+        }) check-in failed. Retrying... 🚫`.red
       );
       console.log('');
+      // Wait for 10 seconds before retrying
+      await new Promise((resolve) => setTimeout(resolve, 10000)); // 10 seconds
     }
-  } catch (error) {
-    console.log(
-      `[${moment().format('HH:mm:ss')}] Your address (${
-        wallet.address
-      }) already did your daily check-in. Try again in 24 hours. 🚫`.red
-    );
-    console.log('');
   }
 }
 
@@ -78,25 +83,24 @@ const userChoice = readlineSync.question(
 if (userChoice === '0') {
   runCheckIn();
 } else if (userChoice === '1') {
-  runCheckIn()
+  async function scheduleCheckIn() {
+    await runCheckIn();
+    // Wait for 24 hours and 5 minutes before the next check-in
+    const waitTime = 24 * 60 * 60 * 1000 + 5 * 60 * 1000; // 24 hours + 5 minutes
+    setTimeout(scheduleCheckIn, waitTime);
+  }
+
+  scheduleCheckIn()
     .then(() => {
-      const job = new CronJob(
-        '0 0 * * *',
-        runCheckIn,
-        null,
-        true,
-        'Asia/Jakarta'
-      );
-      job.start();
       console.log(
-        'Cron job started! The check-in will run every 24 hours. 🕒'.cyan
+        'Check-in scheduling started! The check-in will run every 24 hours and 5 minutes. 🕒'.cyan
       );
     })
     .catch((error) => {
       console.log(
         `[${moment().format(
           'HH:mm:ss'
-        )}] Error running check-in before setting up cron: ${error}`.red
+        )}] Error running check-in before scheduling: ${error}`.red
       );
     });
 } else {
